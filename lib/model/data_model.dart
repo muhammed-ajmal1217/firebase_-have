@@ -9,8 +9,12 @@ class DataModel {
   @HiveField(1)
   String sponsorName;
 
+  @HiveField(2)
+  String? imagePath;
+
   DataModel({
     required this.visitorName,
     required this.sponsorName,
+     this.imagePath,
   });
 }

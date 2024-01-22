@@ -1,38 +1,38 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'data_model.dart';
+part of 'payment_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class DataModelAdapter extends TypeAdapter<DataModel> {
+class PaymentModelAdapter extends TypeAdapter<PaymentModel> {
   @override
-  final int typeId = 1;
+  final int typeId = 2;
 
   @override
-  DataModel read(BinaryReader reader) {
+  PaymentModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return DataModel(
-      visitorName: fields[0] as String,
-      sponsorName: fields[1] as String,
-      imagePath: fields[2] as String?,
+    return PaymentModel(
+      name: fields[0] as String,
+      amount: fields[1] as dynamic,
+      paymentMethod: fields[2] as String,
     );
   }
 
   @override
-  void write(BinaryWriter writer, DataModel obj) {
+  void write(BinaryWriter writer, PaymentModel obj) {
     writer
       ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.visitorName)
+      ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.sponsorName)
+      ..write(obj.amount)
       ..writeByte(2)
-      ..write(obj.imagePath);
+      ..write(obj.paymentMethod);
   }
 
   @override
@@ -41,7 +41,7 @@ class DataModelAdapter extends TypeAdapter<DataModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DataModelAdapter &&
+      other is PaymentModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
