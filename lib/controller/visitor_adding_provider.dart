@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:badgemachinetestapp/hive_function/db_function.dart';
+import 'package:badgemachinetestapp/firebase_service/visitor_firebase_service.dart';
+import 'package:badgemachinetestapp/hive_function/visitor_db_function.dart';
 import 'package:badgemachinetestapp/model/data_model.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,6 +20,7 @@ class PersonAddingProvider extends ChangeNotifier {
         sponsorName: sponsor,
         imagePath: file?.path ?? '');
     await addData(data);
+    await VisitorFirebaseService().addData(data);
     visitorController.clear();
     sponsorController.clear();
     notifyListeners();
@@ -29,4 +31,5 @@ class PersonAddingProvider extends ChangeNotifier {
     file = File(img!.path);
     notifyListeners();
   }
+
 }

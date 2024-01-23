@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "191851436679",
+    "project_id": "badgetestfirebase",
+    "storage_bucket": "badgetestfirebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191851436679:android:45a8087e78ecd56059b622",
+        "android_client_info": {
+          "package_name": "com.example.badgemachinetestapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNWCP2Ex0amFF8xggp6LV2b2O7Hrl1SpM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,4 @@
-
-import 'package:badgemachinetestapp/controller/person_adding_provider.dart';
+import 'package:badgemachinetestapp/controller/visitor_adding_provider.dart';
 import 'package:badgemachinetestapp/helpers/spacing.dart';
 import 'package:badgemachinetestapp/helpers/textfield.dart';
 import 'package:flutter/material.dart';
@@ -17,13 +16,12 @@ class PersonAdding extends StatefulWidget {
 }
 
 class _PersonAddingState extends State<PersonAdding> {
-
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Container( 
       child: Consumer<PersonAddingProvider>(
-        builder: (context, provider, child) => 
-         AlertDialog(
+        builder: (context, provider, child) => AlertDialog(
+          backgroundColor: const Color.fromARGB(255, 21, 21, 21),
           title: Center(
               child: Text('Enter visitor Details',
                   style: GoogleFonts.montserrat(
@@ -32,10 +30,11 @@ class _PersonAddingState extends State<PersonAdding> {
             Center(
               child: CircleAvatar(
                 radius: 40,
-                backgroundColor: Colors.grey[100],
+                backgroundColor: Color.fromARGB(255, 53, 53, 53),
                 child: provider.file == null
                     ? Icon(
-                        Icons.camera_alt_outlined,color: Colors.grey,
+                        Icons.camera_alt_outlined,
+                        color: Colors.grey,
                         size: 30,
                       )
                     : ClipOval(
@@ -55,14 +54,16 @@ class _PersonAddingState extends State<PersonAdding> {
                     onPressed: () {
                       provider.getImage(ImageSource.camera);
                     },
-                    child: Text('camera')),
+                    child: Text('camera',style: TextStyle(color: Colors.amber),)),
+                    SizedBox(width: 50,),
                 TextButton(
                     onPressed: () {
                       provider.getImage(ImageSource.gallery);
                     },
-                    child: Text('gallery')),
+                    child: Text('gallery',style: TextStyle(color: Colors.amber))),
               ],
             ),
+            spacingHeight(20),
             textFormField(
                 controller: provider.visitorController,
                 text: 'Enter visitor name',
@@ -72,6 +73,7 @@ class _PersonAddingState extends State<PersonAdding> {
                 controller: provider.sponsorController,
                 text: 'Enter sponsor name',
                 icon: Icons.person),
+                spacingHeight(20),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
@@ -79,15 +81,13 @@ class _PersonAddingState extends State<PersonAdding> {
                 children: [
                   TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: Text('Cancel')),
+                      child: Text('Cancel',style: TextStyle(color: Colors.amber))),
                   TextButton(
                       onPressed: () {
-                        setState(() {
-                          provider.addDatas();
-                        });
+                        provider.addDatas();
                         Navigator.pop(context);
                       },
-                      child: Text('Save')),
+                      child: Text('Save',style: TextStyle(color: Colors.amber))),
                 ],
               ),
             ),
@@ -96,5 +96,4 @@ class _PersonAddingState extends State<PersonAdding> {
       ),
     );
   }
-
 }

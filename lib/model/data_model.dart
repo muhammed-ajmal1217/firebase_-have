@@ -17,4 +17,18 @@ class DataModel {
     required this.sponsorName,
      this.imagePath,
   });
+  factory DataModel.fromJson(Map<String,dynamic> json){
+    return DataModel(
+      visitorName: json['visitor'], 
+      sponsorName: json['sponsor'],
+      imagePath: json['image']
+      );
+  }
+  Map<String,dynamic> toJson(){
+    return{
+      'visitor':visitorName,
+      'sponsor':sponsorName,
+      'image':imagePath,
+    };
+  }
 }

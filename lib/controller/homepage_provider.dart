@@ -1,22 +1,32 @@
-import 'package:badgemachinetestapp/model/data_model.dart';
+
 import 'package:flutter/material.dart';
+import 'package:badgemachinetestapp/model/data_model.dart';
 
 class HomeProvider extends ChangeNotifier {
-  int isSelected = 0;
+  int _isSelected = 0;
+  String _selectedAlphabet = "";
+
+  int get isSelected => _isSelected;
+  String get selectedAlphabet => _selectedAlphabet;
+
   List<DataModel> filterData(List<DataModel> dataList, String alphabet) {
+    _selectedAlphabet = alphabet;
+    if (alphabet.isEmpty) {
+      return dataList;
+    }
     return dataList
         .where((data) =>
             data.visitorName.toLowerCase().startsWith(alphabet.toLowerCase()))
         .toList();
   }
 
-  getLpha(int index) {
-    if (isSelected == index) {
-      isSelected = 0;
-    notifyListeners();
+  void selectAlpha(int index) {
+    if (_isSelected == index) {
+      _isSelected = 0;
+      _selectedAlphabet = "";
     } else {
-      isSelected = index;
-    notifyListeners();
+      _isSelected = index;
     }
+    notifyListeners();
   }
 }

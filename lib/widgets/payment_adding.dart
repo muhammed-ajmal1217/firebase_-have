@@ -19,6 +19,7 @@ class _PaymentAddingState extends State<PaymentAdding> {
   Widget build(BuildContext context) {
     return Consumer<PaymentProvider>(builder: (context, provider, child) {
       return AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 21, 21, 21),
         actions: [
           spacingHeight(20),
           Center(
@@ -27,10 +28,11 @@ class _PaymentAddingState extends State<PaymentAdding> {
             ),
           ),
           spacingHeight(10),
-          Center(child: Text(widget.data.visitorName)),
+          Center(child: Text(widget.data.visitorName,style: TextStyle(color: Colors.white),)),
           ListTile(
-            title: Text('CASH'),
+            title: Text('CASH',style: TextStyle(color: Colors.white),),
             trailing: Switch(
+              focusColor: Colors.orange,
               value: provider.cashSwitch,
               onChanged: (newValue) {
                 print('Switch onChanged: $newValue');
@@ -40,20 +42,21 @@ class _PaymentAddingState extends State<PaymentAdding> {
           ),
           spacingHeight(20),
           ListTile(
-            title: Text('UPI'),
+            title: Text('UPI',style: TextStyle(color: Colors.white),),
             trailing: Switch(
+              focusColor: Colors.orange,
               value: provider.upiSwitch,
               onChanged: (newValue) {
                 print('Switch onChanged: $newValue');
-
                 provider.updateSwitches(upi: newValue);
               },
             ),
           ),
           spacingHeight(10),
           ListTile(
-            title: Text('LATER'),
+            title: Text('LATER',style: TextStyle(color: Colors.white),),
             trailing: Switch(
+              focusColor: Colors.orange,
               value: provider.laterSwitch,
               onChanged: (newValue) {
                 print('Switch onChanged: $newValue');
@@ -64,14 +67,18 @@ class _PaymentAddingState extends State<PaymentAdding> {
           spacingHeight(10),
           TextFormField(
             controller: provider.amountController,
+            style: TextStyle(color: Colors.white),
+            keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              prefixIcon: Icon(Icons.currency_rupee),
+              prefixIcon: Icon(Icons.currency_rupee,color: const Color.fromARGB(255, 143, 143, 143)),
               hintText: 'Enter amount eg:2500',
+              hintStyle: TextStyle(color: const Color.fromARGB(255, 143, 143, 143)),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
           ),
+          spacingHeight(20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -79,7 +86,7 @@ class _PaymentAddingState extends State<PaymentAdding> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('Cancel'),
+                child: Text('Cancel',style: TextStyle(color: Colors.amber),),
               ),
               TextButton(
                 onPressed: () {
@@ -90,8 +97,10 @@ class _PaymentAddingState extends State<PaymentAdding> {
                               ? 'UPI'
                               : (provider.laterSwitch ? 'LATER' : '')),
                       widget.data.visitorName);
+                      provider.calculateTotal();
+                    Navigator.pop(context);
                 },
-                child: Text('Done'),
+                child: Text('Done',style: TextStyle(color: Colors.amber),),
               ),
             ],
           ),

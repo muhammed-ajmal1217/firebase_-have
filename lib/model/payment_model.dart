@@ -15,4 +15,19 @@ class PaymentModel{
     required this.amount,
     required this.paymentMethod,
   });
+    factory PaymentModel.fromJson(Map<String,dynamic> json){
+    return PaymentModel(
+      name: json['name'], 
+      amount: json['amount'],
+      paymentMethod: json['payment']
+      );
+  }
+  Map<String,dynamic> toJson(){
+    return{
+      'name':name,
+      'amount':amount,
+      'payment':paymentMethod,
+    };
+  }
+  
 }

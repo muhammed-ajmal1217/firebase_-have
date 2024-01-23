@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:badgemachinetestapp/controller/homepage_provider.dart';
+import 'package:badgemachinetestapp/controller/visitor_adding_provider.dart';
+import 'package:badgemachinetestapp/helpers/colors.dart';
 import 'package:badgemachinetestapp/helpers/spacing.dart';
-import 'package:badgemachinetestapp/hive_function/db_function.dart';
+import 'package:badgemachinetestapp/hive_function/visitor_db_function.dart';
 import 'package:badgemachinetestapp/model/data_model.dart';
 import 'package:badgemachinetestapp/views/transaction_page.dart';
 import 'package:badgemachinetestapp/widgets/payment_adding.dart';
-import 'package:badgemachinetestapp/widgets/personadding.dart';
+import 'package:badgemachinetestapp/widgets/visitor_adding.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -24,143 +26,132 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   @override
+  void initState() {
+    super.initState();
+    getData();
+    
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Payment Manager'),
+        title: Text('Payment Manager',style: GoogleFonts.montserrat(color: Colors.white),),
+        backgroundColor: Colors.black,
       ),
-      body: Consumer<HomeProvider>(
-        builder: (context, provider, child) => 
-         Stack(
+      body: Consumer<HomeProvider>(builder: (context, provider, child) {
+        List<DataModel> filteredData = provider.filterData(
+            datas,
+            String.fromCharCode('A'.codeUnitAt(0) + provider.isSelected),
+          );
+        return Stack(
           alignment: Alignment.bottomCenter,
           children: [
             Container(
-              height: double.infinity,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-              ),
-              child: FutureBuilder<List<DataModel>>(
-                future: getData(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('No data available.'));
-                  } else {
-                    List<DataModel> datas = snapshot.data!;
-                    List<DataModel> filteredData = provider.filterData(
-                        datas,
-                        String.fromCharCode(
-                            'A'.codeUnitAt(0) + provider.isSelected));
-                    return Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8.0,
-                          mainAxisSpacing: 8.0,
-                        ),
-                        itemCount: filteredData.length,
-                        itemBuilder: (context, index) {
-                          final data = filteredData[index];
-                          return Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Colors.white,
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Colors.green,
-                                        width: 2.0,
-                                      ),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return PaymentAdding(
-                                                data: data,
-                                              );
-                                            },
+                height: double.infinity,
+                width: double.infinity,
+                color: Colors.black,
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8.0,
+                      mainAxisSpacing: 8.0,
+                    ),
+                    itemCount: filteredData.length,
+                    itemBuilder: (context, index) {
+                      final data = filteredData[index];
+                      return Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Color.fromARGB(255, 23, 23, 23)
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.green,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return PaymentAdding(
+                                            data: data,
                                           );
                                         },
-                                        child: CircleAvatar(
-                                          radius: 30,
-                                          backgroundImage: FileImage(
-                                              File(data.imagePath ?? '')),
-                                        ),
-                                      ),
+                                      );
+                                    },
+                                    child: CircleAvatar(
+                                      radius: 30,
+                                      backgroundImage:
+                                          FileImage(File(data.imagePath ?? '')),
                                     ),
                                   ),
-                                  ListTile(
-                                    title: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(data.visitorName,
-                                            style: GoogleFonts.montserrat(
-                                                fontSize: 15)),
-                                        Text(data.sponsorName,
-                                            style: GoogleFonts.montserrat(
-                                                fontSize: 10)),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  }
-                },
-              ),
-            ),
+                              ListTile(
+                                title: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(data.visitorName,
+                                        style: GoogleFonts.montserrat(color: Colors.white,fontSize: 14)),
+                                    Text(data.sponsorName,
+                                        style: GoogleFonts.montserrat(color: Colors.white,fontSize: 12)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                )),
             Container(
               height: 80,
               width: double.infinity,
-              color: Colors.white,
+              color: Colors.black,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: 26,
                 itemBuilder: (context, index) {
-                  String letter = String.fromCharCode('A'.codeUnitAt(0) + index);
+                  String letter =
+                      String.fromCharCode('A'.codeUnitAt(0) + index);
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GestureDetector(
                       child: Container(
                         height: 60,
-                        width: 90,
+                        width: 70,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(80),
                           color: provider.isSelected == index
-                              ? Colors.blue
+                              ? Colors.amber
                               : Colors.blue[50],
                         ),
                         child: Center(
                           child: Text(
                             letter,
-                            style: TextStyle(fontSize: 18),
+                             style: GoogleFonts.montserrat(color: Colors.black,fontSize: 17,fontWeight: FontWeight.w800),
                           ),
                         ),
                       ),
                       onTap: () {
-                        provider.getLpha(index);
+                        provider.selectAlpha(index);
                       },
                     ),
                   );
@@ -175,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   FloatingActionButton(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.orange,
                     heroTag: 'person',
                     shape: CircleBorder(),
                     child: Icon(Icons.person_add, color: Colors.white),
@@ -190,10 +181,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                   spacingHeight(10),
                   FloatingActionButton(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.orange,
                     heroTag: 'transaction',
                     shape: CircleBorder(),
-                    child: Icon(Icons.money, color: Colors.white),
+                    child: Icon(Icons.attach_money, color: Colors.white),
                     onPressed: () {
                       Navigator.push(
                           context,
@@ -206,8 +197,8 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ],
-        ),
-      ),
+        );
+      }),
     );
   }
 }
