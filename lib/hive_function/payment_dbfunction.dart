@@ -7,7 +7,7 @@ class PaymentDBFunction {
     payDb.add(data);
   }
 
-  Future<List<PaymentModel>> getPayments() async {
+ getPayments() async {
     final dataDb = await Hive.openBox<PaymentModel>('payment_box');
     return dataDb.values.toList();
   }

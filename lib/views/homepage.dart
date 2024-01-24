@@ -1,24 +1,19 @@
 import 'dart:io';
-
 import 'package:badgemachinetestapp/controller/homepage_provider.dart';
-import 'package:badgemachinetestapp/controller/visitor_adding_provider.dart';
-import 'package:badgemachinetestapp/helpers/colors.dart';
-import 'package:badgemachinetestapp/helpers/spacing.dart';
-import 'package:badgemachinetestapp/hive_function/visitor_db_function.dart';
+import 'package:badgemachinetestapp/controller/payment_provider.dart';
 import 'package:badgemachinetestapp/model/data_model.dart';
-import 'package:badgemachinetestapp/views/transaction_page.dart';
+import 'package:badgemachinetestapp/widgets/homepage_button.dart';
 import 'package:badgemachinetestapp/widgets/payment_adding.dart';
-import 'package:badgemachinetestapp/widgets/visitor_adding.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   final Function(bool)? onSwitchChanged;
-  HomePage({
-    Key? key,
+  const HomePage({
+    super.key,
     this.onSwitchChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -28,22 +23,48 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    getData();
-    
+    var pro = Provider.of<HomeProvider>(context, listen: false);
+    var pro1 = Provider.of<PaymentProvider>(context, listen: false);
+    pro.checkConnection(context);
+    pro.checkConnections(context);
+    pro1.getPayments();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Payment Manager',style: GoogleFonts.montserrat(color: Colors.white),),
+        actions: [
+          GestureDetector(
+              onTap: () {
+                Provider.of<HomeProvider>(context, listen: false)
+                    .clearDatas(context);
+              },
+              child: const Text(
+                'Clear',
+                style: TextStyle(color: Colors.blue, fontSize: 18),
+              ))
+        ],
+        title: Text(
+          'Payment Manager',
+          style: GoogleFonts.montserrat(color: Colors.white),
+        ),
         backgroundColor: Colors.black,
       ),
-      body: Consumer<HomeProvider>(builder: (context, provider, child) {
+      body: Consumer2<HomeProvider, PaymentProvider>(
+          builder: (context, provider, paypro, child) {
+        if (!provider.isDataLoaded) {
+          return const Center(
+              child: CircularProgressIndicator(
+            color: Colors.black,
+            backgroundColor: Colors.amber,
+          ));
+        }
         List<DataModel> filteredData = provider.filterData(
-            datas,
-            String.fromCharCode('A'.codeUnitAt(0) + provider.isSelected),
-          );
+          provider.isConnected ? provider.firestoreData : provider.hiveData,
+          String.fromCharCode('A'.codeUnitAt(0) + provider.isSelected),
+        );
         return Stack(
           alignment: Alignment.bottomCenter,
           children: [
@@ -54,7 +75,8 @@ class _HomePageState extends State<HomePage> {
                 child: Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 8.0,
                       mainAxisSpacing: 8.0,
@@ -66,9 +88,8 @@ class _HomePageState extends State<HomePage> {
                         padding: const EdgeInsets.all(5.0),
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: Color.fromARGB(255, 23, 23, 23)
-                          ),
+                              borderRadius: BorderRadius.circular(20),
+                              color: const Color.fromARGB(255, 23, 23, 23)),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -78,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: Colors.green,
+                                    color: Colors.grey,
                                     width: 2.0,
                                   ),
                                 ),
@@ -96,10 +117,12 @@ class _HomePageState extends State<HomePage> {
                                       );
                                     },
                                     child: CircleAvatar(
-                                      radius: 30,
-                                      backgroundImage:
-                                          FileImage(File(data.imagePath ?? '')),
-                                    ),
+                    backgroundImage: data.imagePath != null
+                        ? provider.isConnected
+                            ? NetworkImage(data.imagePath!)
+                            : FileImage(File(data.imagePath!)) as ImageProvider
+                        : const AssetImage('assets/profilepng.png'),
+                  ),
                                   ),
                                 ),
                               ),
@@ -108,9 +131,11 @@ class _HomePageState extends State<HomePage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(data.visitorName,
-                                        style: GoogleFonts.montserrat(color: Colors.white,fontSize: 14)),
+                                        style: GoogleFonts.montserrat(
+                                            color: Colors.white, fontSize: 14)),
                                     Text(data.sponsorName,
-                                        style: GoogleFonts.montserrat(color: Colors.white,fontSize: 12)),
+                                        style: GoogleFonts.montserrat(
+                                            color: Colors.white, fontSize: 12)),
                                   ],
                                 ),
                               ),
@@ -140,13 +165,16 @@ class _HomePageState extends State<HomePage> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(80),
                           color: provider.isSelected == index
-                              ? Colors.amber
+                              ? Colors.orange
                               : Colors.blue[50],
                         ),
                         child: Center(
                           child: Text(
                             letter,
-                             style: GoogleFonts.montserrat(color: Colors.black,fontSize: 17,fontWeight: FontWeight.w800),
+                            style: GoogleFonts.montserrat(
+                                color: Colors.black,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w800),
                           ),
                         ),
                       ),
@@ -158,44 +186,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ),
-            Positioned(
-              right: 10,
-              bottom: 340,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  FloatingActionButton(
-                    backgroundColor: Colors.orange,
-                    heroTag: 'person',
-                    shape: CircleBorder(),
-                    child: Icon(Icons.person_add, color: Colors.white),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return PersonAdding();
-                        },
-                      );
-                    },
-                  ),
-                  spacingHeight(10),
-                  FloatingActionButton(
-                    backgroundColor: Colors.orange,
-                    heroTag: 'transaction',
-                    shape: CircleBorder(),
-                    child: Icon(Icons.attach_money, color: Colors.white),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TransactionPage(),
-                          ));
-                    },
-                  ),
-                ],
-              ),
-            ),
+            const HomeButtons(),
           ],
         );
       }),

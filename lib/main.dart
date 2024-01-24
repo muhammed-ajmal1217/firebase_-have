@@ -1,7 +1,6 @@
 
 import 'package:badgemachinetestapp/controller/homepage_provider.dart';
 import 'package:badgemachinetestapp/controller/payment_provider.dart';
-import 'package:badgemachinetestapp/controller/visitor_adding_provider.dart';
 import 'package:badgemachinetestapp/model/data_model.dart';
 import 'package:badgemachinetestapp/model/payment_model.dart';
 import 'package:badgemachinetestapp/views/homepage.dart';
@@ -14,12 +13,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp(
-        options: FirebaseOptions(
+        options: const FirebaseOptions(
             apiKey: 'AIzaSyCNWCP2Ex0amFF8xggp6LV2b2O7Hrl1SpM',
             appId: '1:191851436679:android:45a8087e78ecd56059b622',
             messagingSenderId: '191851436679',
+            storageBucket: "badgetestfirebase.appspot.com",
             projectId: 'badgetestfirebase',));
   } catch (e) {
+    // ignore: avoid_print
     print('Error initializing Firebase: $e');
   }
   await Hive.initFlutter();
@@ -30,17 +31,16 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => HomeProvider()),
-        ChangeNotifierProvider(create: (context) => PersonAddingProvider()),
         ChangeNotifierProvider(create: (context) => PaymentProvider()),
       ],
-      child: MaterialApp(
+      child: const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: HomePage(),
       ),

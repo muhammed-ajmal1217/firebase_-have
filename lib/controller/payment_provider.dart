@@ -8,8 +8,7 @@ class PaymentProvider extends ChangeNotifier {
   bool upiSwitch = false;
   bool cashSwitch = false;
   bool laterSwitch = false;
-  List<PaymentModel> _payments = [];
-  List<PaymentModel> get payments => _payments;
+  List<PaymentModel> payments = [];
   PaymentDBFunction dbFunction = PaymentDBFunction();
   TextEditingController amountController = TextEditingController();
   List cash = [];
@@ -26,14 +25,13 @@ class PaymentProvider extends ChangeNotifier {
       name: name,
       amount: amount,
       paymentMethod: selectedPayment,
+      time: DateTime.now(),
     );
-    await dbFunction.addPayment(data);
-    _payments.add(data);
-    await PaymentFirebaseService().addPayment(data);
-    await Future.wait([
-      dbFunction.getPayments(),
-      PaymentFirebaseService().getPayments(),
-    ]);
+    payments.add(data);
+     dbFunction.addPayment(data);
+     PaymentFirebaseService().addPayment(data);
+     dbFunction.getPayments();
+     PaymentFirebaseService().getPayments();
     calculateTotal();
     amountController.clear();
     notifyListeners();
@@ -49,10 +47,10 @@ class PaymentProvider extends ChangeNotifier {
   getPayments() async {
     var connectionResult = await Connectivity().checkConnectivity();
     if (connectionResult == ConnectivityResult.none) {
-      _payments = await dbFunction.getPayments();
+      payments = await dbFunction.getPayments();
       notifyListeners();
     } else {
-      _payments = await PaymentFirebaseService().getPayments();
+      payments = await PaymentFirebaseService().getPayments();
       notifyListeners();
     }
     notifyListeners();
@@ -62,6 +60,7 @@ class PaymentProvider extends ChangeNotifier {
   clearTransaction() async {
     await dbFunction.clearTransaction();
     await PaymentFirebaseService().clearAllPayments();
+    getPayments();
     notifyListeners();
   }
 
@@ -80,14 +79,14 @@ class PaymentProvider extends ChangeNotifier {
       }
     }
 
-    totalcash = cash.fold(0, (a, b) => a + _parseAmount(b));
-    totalupi = upi.fold(0, (a, b) => a + _parseAmount(b));
-    totallater = later.fold(0, (a, b) => a + _parseAmount(b));
-    total = totalcash + totallater + totalupi;
+    totalcash = cash.fold(0, (a, b) => a + parseAmount(b));
+    totalupi = upi.fold(0, (a, b) => a + parseAmount(b));
+    totallater = later.fold(0, (a, b) => a + parseAmount(b));
+    total=totalcash+totalupi+totallater;
     notifyListeners();
   }
 
-  int _parseAmount(dynamic value) {
+  int parseAmount(dynamic value) {
     if (value is int) {
       return value;
     } else if (value is String) {
@@ -96,4 +95,4 @@ class PaymentProvider extends ChangeNotifier {
       return 0;
     }
   }
-}
+  }
